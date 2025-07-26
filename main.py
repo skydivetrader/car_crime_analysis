@@ -1,24 +1,31 @@
+import os
 from car_crime_analysis import fetch_crime_reports, analyze_trends, identify_hotspots, plot_trends, plot_hotspots
 
-# Retrieve API key from environment variable
-import os
-API_KEY = os.getenv('NEWS_API_KEY')
-if not API_KEY:
-    raise ValueError("Missing NEWS_API_KEY environment variable")
+def main():
+    # Retrieve API key from environment variable
+    API_KEY = os.getenv('NEWS_API_KEY')
+    if not API_KEY:
+        raise ValueError("Missing NEWS_API_KEY environment variable")
+    
+    # Fetch data with caching
+    df = fetch_crime_reports(api_key=API_KEY, filename='cached_news.csv', max_pages=1)
 
-# Fetch reports with caching
-# You can specify a filename for cache, e.g., 'cached_news.csv'
-df = fetch_crime_reports(api_key=API_KEY, filename='cached_news.csv')
+    # Check if data is available
+    if df.empty:
+        print("No data available. Please check your API quota or data source.")
+        return
 
-# Check if data is fetched
-if df.empty:
-    print("No data available. Please check your API quota or data source.")
-    exit(1)
+    # Analyze trends over time
+    trend_df = analyze_trends(df)
 
-# Proceed with analysis
-trend_df = analyze_trends(df)
-hotspot_df = identify_hotspots(df)
+    # Identify hotspots
+    hotspot_df = identify_hotspots(df)
 
-# Visualize results
-plot_trends(trend_df)
-plot_hotspots(hotspot_df)
+    # Visualize trend analysis
+    plot_trends(trend_df)
+
+    # Visualize hotspots
+    plot_hotspots(hotspot_df)
+
+if __name__ == "__main__":
+    main()
