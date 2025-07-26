@@ -1,0 +1,30 @@
+name: Car Crime Analysis
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  # or your preferred Python version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run analysis script
+        env:
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}  # Use your stored secret
+        run: |
+          python main.py
