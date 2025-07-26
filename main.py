@@ -1,10 +1,11 @@
 import os
 
+from car_crime_analysis import fetch_crime_reports, analyze_trends, identify_hotspots, plot_trends, plot_hotspots
+
+# Retrieve API key from environment variable
 API_KEY = os.getenv('NEWS_API_KEY')
 if not API_KEY:
     raise ValueError("Missing NEWS_API_KEY environment variable")
-
-from car_crime_analysis import fetch_crime_reports, analyze_trends, identify_hotspots, plot_trends, plot_hotspots
 
 # Fetch reports
 df = fetch_crime_reports(api_key=API_KEY)
