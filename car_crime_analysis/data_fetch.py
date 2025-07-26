@@ -1,8 +1,15 @@
+import os
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
 
-def fetch_crime_reports(api_key, years=5, max_pages=1):  # Reduced max_pages for testing
+def fetch_crime_reports(api_key, years=5, max_pages=1, filename='cached_news.csv'):
+    # If cache exists, load and return
+    if os.path.exists(filename):
+        print(f"Loading cached data from {filename}")
+        return pd.read_csv(filename)
+
+    # Otherwise, fetch data from API
     today = datetime.now()
     start_date = today - timedelta(days=years*365)
     from_date = start_date.strftime('%Y-%m-%d')
@@ -46,15 +53,15 @@ def fetch_crime_reports(api_key, years=5, max_pages=1):  # Reduced max_pages for
 
         if response.status_code != 200:
             print(f"Error fetching page {page}: {response.status_code}")
-            continue
+            break
 
         data = response.json()
 
-        # Check if response contains 'articles'
         articles = data.get('articles', [])
         if not articles:
             print(f"No articles found on page {page}.")
             break
+
         for art in articles:
             all_articles.append({
                 'title': art['title'],
@@ -64,5 +71,11 @@ def fetch_crime_reports(api_key, years=5, max_pages=1):  # Reduced max_pages for
                 'description': art['description']
             })
 
+    # Convert to DataFrame
     df = pd.DataFrame(all_articles)
+
+    # Save to CSV for caching
+    df.to_csv(filename, index=False)
+    print(f"Data saved to {filename}")
+
     return df
